@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>Live GPS Coordinates</title>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
 <style>
 body{
 font-family: Arial;
@@ -14,6 +16,11 @@ padding:20px;
 margin-top:20px;
 font-size:18px;
 line-height:1.6;
+}
+
+#map{
+height:400px;
+margin-top:20px;
 }
 </style>
 
@@ -27,11 +34,41 @@ line-height:1.6;
 
 <div id="log"></div>
 
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <script>
 
 let watchId = null;
 
 const log = document.getElementById("log");
+
+const map = L.map('map').setView([23.8103, 90.4125], 15);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+.addTo(map);
+
+let route = [];
+
+const polyline = L.polyline(route,{color:'red'}).addTo(map);
+let marker = null;
+
+function addPoint(lat,lng){
+
+route.push([lat,lng]);
+
+polyline.setLatLngs(route);
+
+if(marker === null){
+marker = L.marker([lat,lng]).addTo(map);
+}else{
+marker.setLatLng([lat,lng]);
+}
+
+map.setView([lat,lng]);
+
+}
 
 document.getElementById("start").onclick = () => {
 
@@ -44,13 +81,15 @@ watchId = navigator.geolocation.watchPosition(
 
 (position)=>{
 
-const lat = position.coords.latitude.toFixed(6);
-const lng = position.coords.longitude.toFixed(6);
+const lat = position.coords.latitude;
+const lng = position.coords.longitude;
 
 const line = document.createElement("div");
-line.textContent = lat + " , " + lng;
+line.textContent = lat.toFixed(6) + " , " + lng.toFixed(6);
 
 log.appendChild(line);
+
+addPoint(lat,lng);
 
 },
 
@@ -60,8 +99,7 @@ alert(error.message);
 
 {
 enableHighAccuracy:true,
-maximumAge:0,
-timeout:50000
+maximumAge:0
 }
 
 );
