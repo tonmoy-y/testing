@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Live GPS Coordinates</title>
+
+<style>
+body{
+font-family: Arial;
+padding:20px;
+}
+
+#log{
+margin-top:20px;
+font-size:18px;
+line-height:1.6;
+}
+</style>
+
+</head>
+<body>
+
+<h2>Live Location Tracker</h2>
+
+<button id="start">Start Tracking</button>
+<button id="stop">Stop Tracking</button>
+
+<div id="log"></div>
+
+<script>
+
+let watchId = null;
+
+const log = document.getElementById("log");
+
+document.getElementById("start").onclick = () => {
+
+if(!navigator.geolocation){
+alert("Geolocation not supported");
+return;
+}
+
+watchId = navigator.geolocation.watchPosition(
+
+(position)=>{
+
+const lat = position.coords.latitude.toFixed(6);
+const lng = position.coords.longitude.toFixed(6);
+
+const line = document.createElement("div");
+line.textContent = lat + " , " + lng;
+
+log.appendChild(line);
+
+},
+
+(error)=>{
+alert(error.message);
+},
+
+{
+enableHighAccuracy:true,
+maximumAge:0,
+timeout:50000
+}
+
+);
+
+};
+
+document.getElementById("stop").onclick = ()=>{
+
+if(watchId !== null){
+navigator.geolocation.clearWatch(watchId);
+}
+
+};
+
+</script>
+
+</body>
+</html>
